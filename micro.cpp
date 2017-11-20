@@ -1,4 +1,5 @@
 #include <avr/io.h>
+#include <avr/power.h>
 #include <util/delay.h>
 
 #include <LUFA/Drivers/Peripheral/SPI.h>
@@ -26,14 +27,22 @@ inline void toggle_leds()
 
 
 int main() {
-	const char PROGMEM * print_string = "Sample string\n";
+	const char * print_string = "Sample string\n";
+	clock_prescale_set(clock_div_1);
 
 	usb_print_init();
 
 	init_leds();
 
+	// TODO: LUFA does not use the right pins for Arduino Micro (variant of Leonardo)
+	// The pins are actually:
+	static const uint8_t SS   = 17;
+	static const uint8_t MOSI = 16;
+	static const uint8_t MISO = 14;
+	static const uint8_t SCK  = 15;
+
 	// SPI loopback test (hookup MOSI to MISO)
-	SPI_Init(SPI_SPEED_FCPU_DIV_64 | SPI_MODE_MASTER);
+	SPI_Init(SPI_SPEED_FCPU_DIV_0 | SPI_MODE_MASTER);
 
 	while(1) {
 		//puts("test puts\n");
@@ -44,10 +53,11 @@ int main() {
 
 		println("Starting SPI transfer:");
 		_delay_ms(100);
-		for (int i = 0; i < 128; ++i)
-			SPI_SendByte(' ');
 		for (const char * pc = print_string; pc != 0; ++pc)
-			pchar(SPI_TransferByte(*pc));
+		{
+			char c = SPI_TransferByte(*pc);
+			pchar(c);
+		}
 
 	}
 
