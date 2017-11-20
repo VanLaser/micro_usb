@@ -42,7 +42,7 @@ int main() {
 	static const uint8_t SCK  = 15;
 
 	// SPI loopback test (hookup MOSI to MISO)
-	SPI_Init(SPI_SPEED_FCPU_DIV_0 | SPI_MODE_MASTER);
+	SPI_Init(SPI_SPEED_FCPU_DIV_4 | SPI_MODE_MASTER);
 
 	while(1) {
 		//puts("test puts\n");
