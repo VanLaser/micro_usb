@@ -6,7 +6,7 @@ F_USB        = $(F_CPU)
 OPTIMIZATION = s
 TARGET       = micro
 SRC          = $(TARGET).cpp usb_debug/usb_debug_only.c usb_debug/print.c usb_debug/xprintf.S
-LUFA_PATH    = ../lufa/LUFA
+LUFA_PATH    = lufa/LUFA
 CC_FLAGS     = -Iusb_debug 
 LD_FLAGS     =
 
