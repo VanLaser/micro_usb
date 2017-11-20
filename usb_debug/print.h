@@ -21,6 +21,7 @@ void usb_print_init(void);
 #define print(s)         xputs(PSTR(s))
 #define println(s)       xputs(PSTR(s "\r\n"))
 #define printf(fmt, ...) xprintf(PSTR(fmt), ##__VA_ARGS__)
+#define sprintf(buf, fmt, ...) xsprintf(buf, PSTR(fmt), ##__VA_ARGS__)
 
 void print_P(const char *s);
 void phex(unsigned char c);

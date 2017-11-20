@@ -1,8 +1,7 @@
 #include <avr/io.h>
 #include <avr/power.h>
+#include <string.h>
 #include <util/delay.h>
-
-#include <LUFA/Drivers/Peripheral/SPI.h>
 
 // usb debugging
 #include "usb_debug_only.h"
@@ -10,55 +9,75 @@
 
 inline void init_leds()
 {
-	DDRB |= _BV(PB0); // set PB0 on port B to output
-	DDRD |= _BV(PD5); // set PD5 on port D to output
+	DDRB |= _BV(0); // set PB0 on port B to output
+	DDRD |= _BV(5); // set PD5 on port D to output
 }
 
 inline void toggle_leds()
 {
-	PORTD |= _BV(PD5);
-	PORTB &= ~_BV(PB0);
-	_delay_ms(1000); // wait 1s
+	PORTD |= _BV(5);
+	PORTB &= ~_BV(0);
+	_delay_ms(300); // wait 1s
 
-	PORTD &= ~_BV(PD5);
-	PORTB |= _BV(PB0);
-	_delay_ms(1000);  // wait 1s
+	PORTD &= ~_BV(5);
+	PORTB |= _BV(0);
+	_delay_ms(300);  // wait 1s
 }
 
 
+void spi_init()
+{
+	// set SS as OUTPUT
+	DDRB  |= _BV(0);
+	PORTB |= _BV(0); //HIGH
+
+	// enable SPI in master mode
+	SPCR = (_BV(MSTR) | _BV(SPE));
+
+	// set SCK and MOSI as output
+	DDRB |= (_BV(1) | _BV(2));
+
+	// set MISO as input pullup
+	DDRB  &= ~_BV(3);
+	PORTB |=  _BV(3);
+
+	// standard mode, 16MHz/4 = 4Mhz
+	SPSR = 0;
+}
+
+uint8_t spi_transfer(uint8_t data) {
+	SPDR = data;
+	while (!(SPSR & _BV(SPIF))) ; // wait
+	return SPDR;
+}
+
 int main() {
-	const char * print_string = "Sample string\n";
+	char str[128];
+	int n = 0;
 	clock_prescale_set(clock_div_1);
 
 	usb_print_init();
 
 	init_leds();
 
-	// TODO: LUFA does not use the right pins for Arduino Micro (variant of Leonardo)
-	// The pins are actually:
-	static const uint8_t SS   = 17;
-	static const uint8_t MOSI = 16;
-	static const uint8_t MISO = 14;
-	static const uint8_t SCK  = 15;
+	// SPI loopback test (needs MOSI connected to MISO)
 
-	// SPI loopback test (hookup MOSI to MISO)
-	SPI_Init(SPI_SPEED_FCPU_DIV_4 | SPI_MODE_MASTER);
+	spi_init();
 
+	_delay_ms(1000);
 	while(1) {
-		//puts("test puts\n");
-		//print("test print\n");
-		//println("test println");
+		//toggle_leds();
 
-		toggle_leds();
+		sprintf(str, "Writing SPI string %d\n", n);
+		int len = strlen(str);
 
-		println("Starting SPI transfer:");
-		_delay_ms(100);
-		for (const char * pc = print_string; pc != 0; ++pc)
-		{
-			char c = SPI_TransferByte(*pc);
-			pchar(c);
-		}
+		PORTB &= ~_BV(0);
+		for (int i = 0; i < len; i++)
+			pchar(spi_transfer(str[i]));
 
+		PORTB |= _BV(0);
+
+		++n;
 	}
 
 	return 0;
