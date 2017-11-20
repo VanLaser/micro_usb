@@ -9,7 +9,7 @@ extern "C" {
 #include "usb_debug_only.h"
 
 // run this at start
-void usb_print_init();
+void usb_print_init(void);
 
 // this macro allows you to write print("some text") and
 // the string is automatically placed into flash memory :)

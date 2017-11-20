@@ -28,7 +28,7 @@
 
 #include "print.h"
 
-void usb_print_init()
+void usb_print_init(void)
 {
 	usb_init();
 	while (!usb_configured()) /* wait */ ;
