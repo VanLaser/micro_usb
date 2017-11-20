@@ -7,7 +7,7 @@ OPTIMIZATION = s
 TARGET       = micro
 SRC          = $(TARGET).cpp usb_debug/usb_debug_only.c usb_debug/print.c usb_debug/xprintf.S
 LUFA_PATH    = lufa/LUFA
-CC_FLAGS     = -Iusb_debug 
+CC_FLAGS     = -Iusb_debug -DF_CPU=$(F_CPU)UL
 LD_FLAGS     =
 
 # Arduino Leanardo compatible flashing
